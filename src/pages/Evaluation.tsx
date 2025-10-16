@@ -97,18 +97,18 @@ const Evaluation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-primary flex flex-col p-8">
+    <div className="min-h-screen bg-gradient-primary flex flex-col p-4 sm:p-6 md:p-8">
       <div className="flex-1 flex flex-col items-center justify-center max-w-6xl mx-auto w-full">
-        <h1 className="text-5xl md:text-6xl font-bold text-primary-foreground mb-8 text-center animate-fade-in">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 md:mb-8 text-center animate-fade-in px-2">
           Como foi sua sessão de hoje na START?
         </h1>
 
-        <div className="grid grid-cols-5 md:grid-cols-10 gap-4 mb-12 animate-scale-in">
+        <div className="grid grid-cols-5 gap-2 sm:gap-3 md:gap-4 mb-8 md:mb-12 animate-scale-in w-full max-w-xl md:max-w-none">
           {emojis.map((emoji) => (
             <button
               key={emoji}
               onClick={() => setSelectedEmoji(emoji)}
-              className={`text-6xl md:text-7xl p-4 rounded-2xl transition-all duration-300 hover:scale-110 ${
+              className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl p-2 sm:p-3 md:p-4 rounded-xl md:rounded-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${
                 selectedEmoji === emoji
                   ? "bg-accent scale-110 shadow-elevated"
                   : "bg-primary-foreground/20 hover:bg-primary-foreground/30"
@@ -119,13 +119,13 @@ const Evaluation = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-12 w-full animate-slide-up">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 mb-8 md:mb-12 w-full animate-slide-up">
           {feedbackPhrases.map((phrase) => (
             <Button
               key={phrase}
               onClick={() => setSelectedPhrase(phrase)}
               variant={selectedPhrase === phrase ? "default" : "secondary"}
-              className={`text-sm md:text-base h-auto py-4 px-6 transition-all duration-300 ${
+              className={`text-xs sm:text-sm md:text-base h-auto py-3 sm:py-4 px-3 sm:px-6 transition-all duration-300 ${
                 selectedPhrase === phrase
                   ? "bg-accent hover:bg-accent/90 scale-105 shadow-elevated"
                   : "bg-primary-foreground hover:bg-primary-foreground/90"
@@ -140,22 +140,22 @@ const Evaluation = () => {
           onClick={handleSubmit}
           disabled={!selectedEmoji || submitEvaluation.isPending}
           size="lg"
-          className="text-2xl px-16 py-8 bg-accent hover:bg-accent/90 shadow-elevated animate-scale-in"
+          className="text-lg sm:text-xl md:text-2xl px-8 sm:px-12 md:px-16 py-6 md:py-8 bg-accent hover:bg-accent/90 shadow-elevated animate-scale-in w-full sm:w-auto"
         >
           Enviar minha avaliação
         </Button>
       </div>
 
       {evaluations && evaluations.length > 0 && (
-        <div className="mt-12 bg-primary-foreground/10 rounded-3xl p-8 backdrop-blur-sm animate-fade-in">
-          <h3 className="text-2xl font-semibold text-primary-foreground mb-6 text-center">
+        <div className="mt-8 md:mt-12 bg-primary-foreground/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-sm animate-fade-in">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-primary-foreground mb-4 md:mb-6 text-center">
             Avaliações Recentes
           </h3>
-          <div className="flex items-center justify-center min-h-[100px]">
+          <div className="flex items-center justify-center min-h-[80px] md:min-h-[100px]">
             <div className="text-center transition-all duration-500 animate-fade-in">
-              <div className="text-6xl mb-4">{evaluations[currentEvalIndex].emoji}</div>
+              <div className="text-4xl sm:text-5xl md:text-6xl mb-3 md:mb-4">{evaluations[currentEvalIndex].emoji}</div>
               {evaluations[currentEvalIndex].feedback_text && (
-                <p className="text-2xl text-primary-foreground/90">
+                <p className="text-base sm:text-lg md:text-2xl text-primary-foreground/90 px-4">
                   "{evaluations[currentEvalIndex].feedback_text}"
                 </p>
               )}
@@ -164,8 +164,8 @@ const Evaluation = () => {
         </div>
       )}
 
-      <div className="text-center mt-8">
-        <p className="text-primary-foreground/70 text-lg">
+      <div className="text-center mt-6 md:mt-8">
+        <p className="text-primary-foreground/70 text-sm sm:text-base md:text-lg">
           START – Fisioterapia Ortopédica e Esportiva
         </p>
       </div>

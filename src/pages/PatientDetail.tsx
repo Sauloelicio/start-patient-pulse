@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Calendar, Package, Phone, Activity, Plus } from "lucide-react";
+import { ArrowLeft, Calendar, Package, Phone, Activity, Plus, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -69,12 +69,53 @@ const PatientDetail = () => {
     },
   });
 
+  const deletePatientMutation = useMutation({
+    mutationFn: async () => {
+      // Delete sessions first (foreign key dependency)
+      const { error: sessionsError } = await supabase
+        .from("sessions")
+        .delete()
+        .eq("patient_id", id);
+      
+      if (sessionsError) throw sessionsError;
+
+      // Delete patient photo if exists
+      if (patient?.photo_url) {
+        const fileName = patient.photo_url.split("/").pop();
+        if (fileName) {
+          await supabase.storage.from("patient-photos").remove([fileName]);
+        }
+      }
+
+      // Delete patient
+      const { error: patientError } = await supabase
+        .from("patients")
+        .delete()
+        .eq("id", id);
+      
+      if (patientError) throw patientError;
+    },
+    onSuccess: () => {
+      toast.success("Paciente excluído com sucesso!");
+      navigate("/patients");
+    },
+    onError: () => {
+      toast.error("Erro ao excluir paciente");
+    },
+  });
+
   const handleAddSession = () => {
     if (!sessionDate || !evolution) {
       toast.error("Preencha todos os campos");
       return;
     }
     addSessionMutation.mutate();
+  };
+
+  const handleDeletePatient = () => {
+    if (window.confirm(`Tem certeza que deseja excluir o paciente ${patient?.name}? Esta ação não pode ser desfeita.`)) {
+      deletePatientMutation.mutate();
+    }
   };
 
   const getInitials = (name: string) => {
@@ -108,14 +149,26 @@ const PatientDetail = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/patients")}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="hover:bg-primary/10"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar
+          </Button>
+          
+          <Button
+            variant="destructive"
+            onClick={handleDeletePatient}
+            disabled={deletePatientMutation.isPending}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {deletePatientMutation.isPending ? "Excluindo..." : "Excluir Paciente"}
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="shadow-elevated animate-fade-in">
