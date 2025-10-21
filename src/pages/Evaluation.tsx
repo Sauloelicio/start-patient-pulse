@@ -131,8 +131,8 @@ const Evaluation = () => {
                 variant={selectedPhrase === phrase ? "default" : "secondary"}
                 className={`text-xs sm:text-sm md:text-base h-auto py-3 sm:py-4 px-3 sm:px-6 transition-all duration-300 ${
                   selectedPhrase === phrase
-                    ? "bg-accent hover:bg-accent/90 scale-105 shadow-elevated"
-                    : "bg-primary-foreground hover:bg-primary-foreground/90"
+                    ? "bg-accent hover:bg-accent/90 scale-105 shadow-elevated text-accent-foreground"
+                    : "bg-foreground hover:bg-foreground/90 text-background"
                 }`}
               >
                 {phrase}
