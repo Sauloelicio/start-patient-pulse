@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +11,21 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Se não houver senha cadastrada, redireciona para setup
+    const savedPassword = localStorage.getItem("systemPassword");
+    if (!savedPassword) {
+      navigate("/setup-password");
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simple password check - in production, this would be verified server-side
-    const correctPassword = import.meta.env.VITE_APP_PASSWORD || "admin123";
+    // Verifica a senha cadastrada
+    const savedPassword = localStorage.getItem("systemPassword");
+    const correctPassword = savedPassword ? atob(savedPassword) : "";
     
     if (password === correctPassword) {
       localStorage.setItem("isAuthenticated", "true");
@@ -62,6 +71,17 @@ const Login = () => {
             >
               {isLoading ? "Verificando..." : "Entrar"}
             </Button>
+            
+            <div className="text-center mt-4">
+              <Button
+                type="button"
+                variant="link"
+                onClick={() => navigate("/setup-password")}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Redefinir senha
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
