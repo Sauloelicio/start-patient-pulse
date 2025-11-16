@@ -10,6 +10,7 @@ import NewPatient from "./pages/NewPatient";
 import PatientDetail from "./pages/PatientDetail";
 import Evaluation from "./pages/Evaluation";
 import Login from "./pages/Login";
+import SetupPassword from "./pages/SetupPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/setup-password" element={<SetupPassword />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/patients" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
