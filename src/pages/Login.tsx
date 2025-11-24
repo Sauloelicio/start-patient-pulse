@@ -137,7 +137,7 @@ const Login = () => {
               />
               {isBlocked && (
                 <p className="text-sm text-destructive text-center">
-                  Bloqueado. Tempo restante: {getRemainingTime()}
+                  Acesso temporariamente bloqueado. Tente novamente mais tarde.
                 </p>
               )}
               {!isBlocked && attempts > 0 && (
