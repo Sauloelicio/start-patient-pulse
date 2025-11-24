@@ -3,109 +3,112 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, UserPlus, LogIn } from "lucide-react";
+import { Lock } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { signInSchema, signUpSchema } from "@/lib/validation";
-import { useAuth } from "@/contexts/AuthContext";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
 
 const Login = () => {
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockEndTime, setBlockEndTime] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { user } = useAuth();
 
-  // Redirect if already logged in
+  const CORRECT_PASSWORD = import.meta.env.VITE_APP_PASSWORD || "fisio2024";
+  const MAX_ATTEMPTS = 3;
+  const BLOCK_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
+
   useEffect(() => {
-    if (user) {
+    // Verificar se já está autenticado
+    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    if (isAuthenticated === "true") {
       navigate("/");
     }
-  }, [user, navigate]);
 
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
+    // Verificar se há bloqueio ativo
+    const storedBlockEnd = localStorage.getItem("loginBlockEnd");
+    const storedAttempts = localStorage.getItem("loginAttempts");
+    
+    if (storedAttempts) {
+      setAttempts(parseInt(storedAttempts));
+    }
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    if (storedBlockEnd) {
+      const blockEnd = parseInt(storedBlockEnd);
+      const now = Date.now();
+      
+      if (now < blockEnd) {
+        setIsBlocked(true);
+        setBlockEndTime(blockEnd);
+        
+        const timer = setTimeout(() => {
+          setIsBlocked(false);
+          setBlockEndTime(null);
+          setAttempts(0);
+          localStorage.removeItem("loginBlockEnd");
+          localStorage.removeItem("loginAttempts");
+        }, blockEnd - now);
 
-    try {
-      const validated = signInSchema.parse({ email, password });
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: validated.email,
-        password: validated.password,
-      });
-
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("Email ou senha incorretos");
-        } else {
-          toast.error(error.message);
-        }
-        return;
-      }
-
-      toast.success("Login realizado com sucesso!");
-      navigate("/");
-    } catch (error: any) {
-      if (error.errors) {
-        toast.error(error.errors[0]?.message || "Erro ao validar dados");
+        return () => clearTimeout(timer);
       } else {
-        toast.error("Erro ao fazer login");
+        // Bloqueio expirou
+        localStorage.removeItem("loginBlockEnd");
+        localStorage.removeItem("loginAttempts");
       }
-    } finally {
-      setIsLoading(false);
     }
+  }, [navigate]);
+
+  const getRemainingTime = () => {
+    if (!blockEndTime) return "";
+    const remaining = Math.ceil((blockEndTime - Date.now()) / 1000);
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (isBlocked) {
+      toast.error(`Aguarde ${getRemainingTime()} para tentar novamente`);
+      return;
+    }
+
     setIsLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const fullName = formData.get("fullName") as string;
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    try {
-      const validated = signUpSchema.parse({ fullName, email, password });
-
-      const redirectUrl = `${window.location.origin}/`;
-
-      const { error } = await supabase.auth.signUp({
-        email: validated.email,
-        password: validated.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: validated.fullName,
-          },
-        },
-      });
-
-      if (error) {
-        if (error.message.includes("already registered")) {
-          toast.error("Este email já está cadastrado");
-        } else {
-          toast.error(error.message);
-        }
-        return;
-      }
-
-      toast.success("Conta criada com sucesso! Você já pode fazer login.");
+    if (password === CORRECT_PASSWORD) {
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.removeItem("loginAttempts");
+      localStorage.removeItem("loginBlockEnd");
+      toast.success("Acesso autorizado!");
       navigate("/");
-    } catch (error: any) {
-      if (error.errors) {
-        toast.error(error.errors[0]?.message || "Erro ao validar dados");
+    } else {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      localStorage.setItem("loginAttempts", newAttempts.toString());
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const blockEnd = Date.now() + BLOCK_DURATION;
+        setIsBlocked(true);
+        setBlockEndTime(blockEnd);
+        localStorage.setItem("loginBlockEnd", blockEnd.toString());
+        toast.error("Muitas tentativas incorretas. Aguarde 5 minutos.");
+        
+        setTimeout(() => {
+          setIsBlocked(false);
+          setBlockEndTime(null);
+          setAttempts(0);
+          localStorage.removeItem("loginBlockEnd");
+          localStorage.removeItem("loginAttempts");
+        }, BLOCK_DURATION);
       } else {
-        toast.error("Erro ao criar conta");
+        const remainingAttempts = MAX_ATTEMPTS - newAttempts;
+        toast.error(`Senha incorreta. ${remainingAttempts} tentativa(s) restante(s).`);
       }
-    } finally {
-      setIsLoading(false);
+      setPassword("");
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -121,97 +124,37 @@ const Login = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">
-                <LogIn className="w-4 h-4 mr-2" />
-                Entrar
-              </TabsTrigger>
-              <TabsTrigger value="signup">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Cadastrar
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    disabled={isLoading}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Senha</Label>
-                  <Input
-                    id="signin-password"
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                    disabled={isLoading}
-                    required
-                    autoComplete="current-password"
-                  />
-                </div>
-                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                  {isLoading ? "Entrando..." : "Entrar"}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Nome completo</Label>
-                  <Input
-                    id="signup-name"
-                    name="fullName"
-                    type="text"
-                    placeholder="Seu nome completo"
-                    disabled={isLoading}
-                    required
-                    autoComplete="name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    disabled={isLoading}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Senha</Label>
-                  <Input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    placeholder="Mínimo 8 caracteres, 1 maiúscula, 1 número"
-                    disabled={isLoading}
-                    required
-                    autoComplete="new-password"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Senha forte: mínimo 8 caracteres, com maiúsculas, minúsculas e números
-                  </p>
-                </div>
-                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                  {isLoading ? "Criando conta..." : "Criar conta"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Digite a senha de acesso"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading || isBlocked}
+                required
+                className="text-center text-lg"
+              />
+              {isBlocked && (
+                <p className="text-sm text-destructive text-center">
+                  Bloqueado. Tempo restante: {getRemainingTime()}
+                </p>
+              )}
+              {!isBlocked && attempts > 0 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  {MAX_ATTEMPTS - attempts} tentativa(s) restante(s)
+                </p>
+              )}
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              size="lg" 
+              disabled={isLoading || isBlocked}
+            >
+              {isBlocked ? "Aguarde..." : isLoading ? "Verificando..." : "Acessar Sistema"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
