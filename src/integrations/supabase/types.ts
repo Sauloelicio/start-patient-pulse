@@ -38,6 +38,7 @@ export type Database = {
       patients: {
         Row: {
           created_at: string
+          deleted_at: string | null
           id: string
           name: string
           pathology: string
@@ -49,6 +50,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name: string
           pathology: string
@@ -60,6 +62,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name?: string
           pathology?: string
@@ -95,6 +98,7 @@ export type Database = {
       sessions: {
         Row: {
           created_at: string
+          deleted_at: string | null
           evolution: string
           id: string
           patient_id: string
@@ -102,6 +106,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           evolution: string
           id?: string
           patient_id: string
@@ -109,6 +114,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           evolution?: string
           id?: string
           patient_id?: string

@@ -3,9 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PatientCard from "@/components/PatientCard";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportToCSV, exportToJSON } from "@/lib/backup";
+import { toast } from "sonner";
 import {
   Pagination,
   PaginationContent,
@@ -65,6 +73,26 @@ const Patients = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleExportCSV = async () => {
+    try {
+      await exportToCSV();
+      toast.success("Backup exportado em CSV com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao exportar backup");
+      console.error(error);
+    }
+  };
+
+  const handleExportJSON = async () => {
+    try {
+      await exportToJSON();
+      toast.success("Backup exportado em JSON com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao exportar backup");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <div className="container mx-auto px-4 py-8">
@@ -77,13 +105,31 @@ const Patients = () => {
               Gerencie seus pacientes e acompanhe a evolução
             </p>
           </div>
-          <Button
-            onClick={() => navigate("/patients/new")}
-            className="bg-gradient-primary hover:opacity-90 transition-opacity"
-          >
-            <Plus className="mr-2 h-5 w-5" />
-            Novo Paciente
-          </Button>
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="border-primary/20">
+                  <Download className="mr-2 h-5 w-5" />
+                  Backup
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleExportCSV}>
+                  Exportar CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportJSON}>
+                  Exportar JSON
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              onClick={() => navigate("/patients/new")}
+              className="bg-gradient-primary hover:opacity-90 transition-opacity"
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Novo Paciente
+            </Button>
+          </div>
         </div>
 
         <div className="relative mb-6">
