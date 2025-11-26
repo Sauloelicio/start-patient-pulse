@@ -71,36 +71,28 @@ const PatientDetail = () => {
 
   const deletePatientMutation = useMutation({
     mutationFn: async () => {
-      // Delete sessions first (foreign key dependency)
-      const { error: sessionsError } = await supabase
-        .from("sessions")
-        .delete()
-        .eq("patient_id", id);
-      
-      if (sessionsError) throw sessionsError;
-
-      // Delete patient photo if exists
-      if (patient?.photo_url) {
-        const fileName = patient.photo_url.split("/").pop();
-        if (fileName) {
-          await supabase.storage.from("patient-photos").remove([fileName]);
-        }
-      }
-
-      // Delete patient
+      // Soft delete: marca como deletado em vez de excluir
       const { error: patientError } = await supabase
         .from("patients")
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq("id", id);
       
       if (patientError) throw patientError;
+
+      // Soft delete nas sessões relacionadas
+      const { error: sessionsError } = await supabase
+        .from("sessions")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("patient_id", id);
+      
+      if (sessionsError) throw sessionsError;
     },
     onSuccess: () => {
-      toast.success("Paciente excluído com sucesso!");
+      toast.success("Paciente arquivado com sucesso!");
       navigate("/patients");
     },
     onError: () => {
-      toast.error("Erro ao excluir paciente");
+      toast.error("Erro ao arquivar paciente");
     },
   });
 
@@ -113,7 +105,7 @@ const PatientDetail = () => {
   };
 
   const handleDeletePatient = () => {
-    if (window.confirm(`Tem certeza que deseja excluir o paciente ${patient?.name}? Esta ação não pode ser desfeita.`)) {
+    if (window.confirm(`Tem certeza que deseja arquivar o paciente ${patient?.name}? Os dados serão preservados e poderão ser recuperados.`)) {
       deletePatientMutation.mutate();
     }
   };
@@ -166,7 +158,7 @@ const PatientDetail = () => {
             className="bg-destructive hover:bg-destructive/90"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            {deletePatientMutation.isPending ? "Excluindo..." : "Excluir Paciente"}
+            {deletePatientMutation.isPending ? "Arquivando..." : "Arquivar Paciente"}
           </Button>
         </div>
 
