@@ -15,9 +15,9 @@ const Login = () => {
   const [blockEndTime, setBlockEndTime] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const CORRECT_PASSWORD = import.meta.env.VITE_APP_PASSWORD || "fisio2024";
+  const CORRECT_PASSWORD = "start@2024";
   const SERVICE_EMAIL = "sistema@startfisio.local";
-  const SERVICE_PASSWORD = import.meta.env.VITE_SERVICE_ACCOUNT_PASSWORD || "start2025service";
+  const SERVICE_PASSWORD = "StartFisio#Service2024!";
   const MAX_ATTEMPTS = 3;
   const BLOCK_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
 
