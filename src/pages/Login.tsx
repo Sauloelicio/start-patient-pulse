@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [password, setPassword] = useState("");
@@ -15,6 +16,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   const CORRECT_PASSWORD = import.meta.env.VITE_APP_PASSWORD || "fisio2024";
+  const SERVICE_EMAIL = "sistema@startfisio.local";
+  const SERVICE_PASSWORD = import.meta.env.VITE_SERVICE_ACCOUNT_PASSWORD || "start2025service";
   const MAX_ATTEMPTS = 3;
   const BLOCK_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
 
@@ -66,7 +69,7 @@ const Login = () => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (isBlocked) {
@@ -77,6 +80,48 @@ const Login = () => {
     setIsLoading(true);
 
     if (password === CORRECT_PASSWORD) {
+      // Tentar fazer login com a conta de serviço
+      let { error } = await supabase.auth.signInWithPassword({
+        email: SERVICE_EMAIL,
+        password: SERVICE_PASSWORD,
+      });
+
+      // Se usuário não existe, criar automaticamente
+      if (error?.message?.includes("Invalid login credentials")) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: SERVICE_EMAIL,
+          password: SERVICE_PASSWORD,
+          options: {
+            emailRedirectTo: window.location.origin,
+          }
+        });
+
+        if (signUpError) {
+          console.error("Erro ao criar conta de serviço:", signUpError);
+          toast.error("Erro interno de autenticação. Tente novamente.");
+          setIsLoading(false);
+          return;
+        }
+
+        // Tentar login novamente após criar
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email: SERVICE_EMAIL,
+          password: SERVICE_PASSWORD,
+        });
+
+        if (loginError) {
+          console.error("Erro ao autenticar após criação:", loginError);
+          toast.error("Erro interno de autenticação. Tente novamente.");
+          setIsLoading(false);
+          return;
+        }
+      } else if (error) {
+        console.error("Erro ao autenticar com Supabase:", error);
+        toast.error("Erro interno de autenticação. Tente novamente.");
+        setIsLoading(false);
+        return;
+      }
+
       localStorage.setItem("isAuthenticated", "true");
       localStorage.removeItem("loginAttempts");
       localStorage.removeItem("loginBlockEnd");
