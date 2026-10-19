@@ -5,4 +5,4 @@
 - [x] Entregar diagnóstico com funcionalidades incompletas e limites da verificação.
 - [x] Confirmar botão Excluir Paciente com cadastro e sessão temporários.
 - [x] Verificar acesso habitual e informar prontidão para publicação e uso clínico.
-- [ ] Atualizar senha pelo armazenamento seguro e verificar acesso com a nova senha.
+- [x] Atualizar senha pelo armazenamento seguro e verificar acesso com a nova senha.
