@@ -7,7 +7,7 @@ import json
 import os
 import unittest
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 
 class PatientArchiveTests(unittest.TestCase):
@@ -62,7 +62,7 @@ class PatientArchiveTests(unittest.TestCase):
         self.page.get_by_role("button", name="Excluir Paciente").click()
         self.page.wait_for_url("**/patients")
         self.page.get_by_text("Pacientes", exact=True).wait_for()
-        self.assertEqual(self.page.get_by_text(name, exact=True).count(), 0)
+        expect(self.page.get_by_text(name, exact=True)).to_have_count(0)
         result = self.page.evaluate("""async id => {
           const { supabase } = await import('/src/integrations/supabase/client.ts');
           const patients = await supabase.from('patients').select('id').eq('id',id).is('deleted_at',null);
