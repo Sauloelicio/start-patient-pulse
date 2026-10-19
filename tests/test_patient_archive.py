@@ -57,7 +57,7 @@ class PatientArchiveTests(unittest.TestCase):
         note = "Sessão temporária para verificar exclusão transacional."
         self.page.get_by_label("Evolução", exact=True).fill(note)
         self.page.get_by_role("button", name="Adicionar Sessão").click()
-        self.page.get_by_text(note, exact=True).wait_for()
+        self.page.get_by_text("Sessão registrada com sucesso!", exact=True).wait_for()
         self.page.on("dialog", lambda dialog: dialog.accept())
         self.page.get_by_role("button", name="Excluir Paciente").click()
         self.page.wait_for_url("**/patients")
@@ -76,6 +76,13 @@ class PatientArchiveTests(unittest.TestCase):
         self.page.goto(f"http://localhost:8080/patients/{patient_id}")
         self.page.get_by_text("Paciente não encontrado", exact=True).wait_for()
         self.assertEqual(self.page.get_by_text(note, exact=True).count(), 0)
+        blocked = self.page.evaluate("""async id => {
+          const { supabase } = await import('/src/integrations/supabase/client.ts');
+          const {error} = await supabase.from('sessions').insert({patient_id:id,
+            session_date:'2026-10-19', evolution:'Tentativa de sessão após exclusão'});
+          return error?.code;
+        }""", patient_id)
+        self.assertEqual(blocked, "23514")
 
 
 if __name__ == "__main__":

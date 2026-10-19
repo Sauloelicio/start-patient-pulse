@@ -149,7 +149,7 @@ const PatientDetail = () => {
           <Button
             variant="destructive"
             onClick={handleDeletePatient}
-            disabled={deletePatientMutation.isPending}
+            disabled={deletePatientMutation.isPending || addSessionMutation.isPending}
             className="bg-destructive hover:bg-destructive/90"
           >
             <Trash2 className="mr-2 h-4 w-4" />
