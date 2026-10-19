@@ -36,7 +36,8 @@ const Patients = () => {
     queryFn: async () => {
       const { count, error } = await supabase
         .from("patients")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .is("deleted_at", null);
       
       if (error) throw error;
       return count || 0;
@@ -53,6 +54,7 @@ const Patients = () => {
       const { data, error } = await supabase
         .from("patients")
         .select("*")
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .range(from, to);
       

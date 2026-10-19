@@ -28,6 +28,7 @@ const PatientDetail = () => {
         .from("patients")
         .select("*")
         .eq("id", id)
+        .is("deleted_at", null)
         .single();
       
       if (error) throw error;
@@ -42,6 +43,7 @@ const PatientDetail = () => {
         .from("sessions")
         .select("*")
         .eq("patient_id", id)
+        .is("deleted_at", null)
         .order("session_date", { ascending: false });
       
       if (error) throw error;
@@ -71,28 +73,21 @@ const PatientDetail = () => {
 
   const deletePatientMutation = useMutation({
     mutationFn: async () => {
-      // Soft delete: marca como deletado em vez de excluir
-      const { error: patientError } = await supabase
-        .from("patients")
-        .update({ deleted_at: new Date().toISOString() })
-        .eq("id", id);
-      
-      if (patientError) throw patientError;
-
-      // Soft delete nas sessões relacionadas
-      const { error: sessionsError } = await supabase
-        .from("sessions")
-        .update({ deleted_at: new Date().toISOString() })
-        .eq("patient_id", id);
-      
-      if (sessionsError) throw sessionsError;
+      if (!id) throw new Error("Paciente não encontrado");
+      const { data, error } = await supabase.rpc("archive_patient", { patient_uuid: id });
+      if (error) throw error;
+      if (data !== id) throw new Error("Exclusão não confirmada");
     },
     onSuccess: () => {
-      toast.success("Paciente arquivado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["patients-count"] });
+      queryClient.removeQueries({ queryKey: ["patient", id] });
+      queryClient.removeQueries({ queryKey: ["sessions", id] });
+      toast.success("Paciente excluído da lista. Os registros foram preservados.");
       navigate("/patients");
     },
     onError: () => {
-      toast.error("Erro ao arquivar paciente");
+      toast.error("Não foi possível excluir o paciente. Verifique sua permissão e tente novamente.");
     },
   });
 
@@ -105,7 +100,7 @@ const PatientDetail = () => {
   };
 
   const handleDeletePatient = () => {
-    if (window.confirm(`Tem certeza que deseja arquivar o paciente ${patient?.name}? Os dados serão preservados e poderão ser recuperados.`)) {
+    if (window.confirm(`Excluir ${patient?.name} da lista de pacientes? O paciente e suas sessões serão arquivados, sem apagar os registros definitivamente.`)) {
       deletePatientMutation.mutate();
     }
   };
@@ -154,11 +149,11 @@ const PatientDetail = () => {
           <Button
             variant="destructive"
             onClick={handleDeletePatient}
-            disabled={deletePatientMutation.isPending}
+            disabled={deletePatientMutation.isPending || addSessionMutation.isPending}
             className="bg-destructive hover:bg-destructive/90"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            {deletePatientMutation.isPending ? "Arquivando..." : "Arquivar Paciente"}
+            {deletePatientMutation.isPending ? "Excluindo..." : "Excluir Paciente"}
           </Button>
         </div>
 

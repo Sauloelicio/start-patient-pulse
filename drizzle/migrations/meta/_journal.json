@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792431819819,
+      "tag": "0000_atomic_patient_archive",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792431939759,
+      "tag": "0001_prevent_sessions_for_archived_patients",
+      "breakpoints": true
+    }
+  ]
+}
