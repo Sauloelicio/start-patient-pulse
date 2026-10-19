@@ -15,9 +15,6 @@ const Login = () => {
   const [blockEndTime, setBlockEndTime] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const CORRECT_PASSWORD = "start@2024";
-  const SERVICE_EMAIL = "sistema@startfisio.local";
-  const SERVICE_PASSWORD = "StartFisio#Service2024!";
   const MAX_ATTEMPTS = 3;
   const BLOCK_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
 
@@ -79,45 +76,27 @@ const Login = () => {
 
     setIsLoading(true);
 
-    if (password === CORRECT_PASSWORD) {
-      // Tentar fazer login com a conta de serviço
-      let { error } = await supabase.auth.signInWithPassword({
-        email: SERVICE_EMAIL,
-        password: SERVICE_PASSWORD,
-      });
+    let data;
+    let error;
+    try {
+      ({ data, error } = await supabase.functions.invoke("shared-login", {
+        body: { password },
+      }));
+    } catch {
+      toast.error("Não foi possível acessar o sistema. Tente novamente.");
+      setIsLoading(false);
+      return;
+    }
+    if (error && error.context?.status !== 401) {
+      toast.error("Não foi possível acessar o sistema. Tente novamente.");
+      setIsLoading(false);
+      return;
+    }
 
-      // Se usuário não existe, criar automaticamente
-      if (error?.message?.includes("Invalid login credentials")) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: SERVICE_EMAIL,
-          password: SERVICE_PASSWORD,
-          options: {
-            emailRedirectTo: window.location.origin,
-          }
-        });
-
-        if (signUpError) {
-          console.error("Erro ao criar conta de serviço:", signUpError);
-          toast.error("Erro interno de autenticação. Tente novamente.");
-          setIsLoading(false);
-          return;
-        }
-
-        // Tentar login novamente após criar
-        const { error: loginError } = await supabase.auth.signInWithPassword({
-          email: SERVICE_EMAIL,
-          password: SERVICE_PASSWORD,
-        });
-
-        if (loginError) {
-          console.error("Erro ao autenticar após criação:", loginError);
-          toast.error("Erro interno de autenticação. Tente novamente.");
-          setIsLoading(false);
-          return;
-        }
-      } else if (error) {
-        console.error("Erro ao autenticar com Supabase:", error);
-        toast.error("Erro interno de autenticação. Tente novamente.");
+    if (!error && data?.session) {
+      const { error: sessionError } = await supabase.auth.setSession(data.session);
+      if (sessionError) {
+        toast.error("Não foi possível acessar o sistema. Tente novamente.");
         setIsLoading(false);
         return;
       }
