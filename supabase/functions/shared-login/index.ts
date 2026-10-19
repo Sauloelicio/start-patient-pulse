@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return respond(405, { error: 'Método não permitido' });
   const expected = Deno.env.get('APP_PASSWORD');
-  const accountPassword = Deno.env.get('SERVICE_ACCOUNT_PASSWORD');
+  const accountPassword = Deno.env.get('START_LOGIN_ACCOUNT_PASSWORD');
   const url = Deno.env.get('SUPABASE_URL');
   const key = Deno.env.get('SUPABASE_ANON_KEY');
   if (!expected || !accountPassword || !url || !key) {
