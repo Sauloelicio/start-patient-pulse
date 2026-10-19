@@ -1,5 +1,5 @@
 # Reativação do START
-- [ ] Verificar banco e principais fluxos e registrar falhas confirmadas.
-- [ ] Corrigir exclusão de pacientes sem perda permanente de dados.
-- [ ] Testar cadastro, sessão e exclusão com registro de teste autenticado.
-- [ ] Entregar diagnóstico com funcionalidades incompletas e limites da verificação.
+- [x] Verificar banco e principais fluxos e registrar falhas confirmadas.
+- [x] Corrigir exclusão de pacientes sem perda permanente de dados.
+- [x] Testar cadastro, sessão e exclusão com registro de teste autenticado.
+- [x] Entregar diagnóstico com funcionalidades incompletas e limites da verificação.
