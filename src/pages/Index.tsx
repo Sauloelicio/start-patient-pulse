@@ -16,7 +16,7 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <div
-        className="relative h-screen bg-cover bg-center flex items-center justify-center"
+        className="relative min-h-screen bg-cover bg-center flex items-center justify-center py-20"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-primary/90 to-primary/70 backdrop-blur-sm" />
@@ -31,18 +31,18 @@ const Index = () => {
           Sair
         </Button>
         
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6">
+        <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto animate-fade-in">
+          <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-4 md:mb-6">
             START
           </h1>
-          <p className="text-2xl md:text-3xl text-primary-foreground/90 mb-4">
+          <p className="text-xl md:text-3xl text-primary-foreground/90 mb-3 md:mb-4">
             Fisioterapia Ortopédica e Esportiva
           </p>
-          <p className="text-xl text-primary-foreground/80 mb-12">
+          <p className="text-base md:text-xl text-primary-foreground/80 mb-8 md:mb-12">
             Sistema de Gestão e Avaliação de Pacientes
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-16 [&>button]:h-20 md:[&>button]:h-32">
             <Button
               size="lg"
               onClick={() => navigate("/patients")}
