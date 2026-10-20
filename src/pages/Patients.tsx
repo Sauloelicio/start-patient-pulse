@@ -96,11 +96,11 @@ const Patients = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-[calc(100vh-4rem)]">
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
               Pacientes
             </h1>
             <p className="text-muted-foreground">
@@ -135,13 +135,13 @@ const Patients = () => {
         </div>
 
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Pesquisar por nome ou patologia..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-12 text-base shadow-card"
+            className="pl-11 h-14 text-base bg-card rounded-xl border-transparent shadow-card"
           />
         </div>
 

@@ -35,11 +35,11 @@ const PatientCard = ({ patient }: PatientCardProps) => {
   return (
     <Card
       onClick={() => navigate(`/patients/${patient.id}`)}
-      className="cursor-pointer hover:shadow-elevated transition-all duration-300 hover:scale-[1.02] animate-scale-in"
+      className="cursor-pointer rounded-2xl border-0 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-scale-in"
     >
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4 mb-4">
-          <Avatar className="h-16 w-16 border-2 border-primary">
+      <CardContent className="p-5">
+        <div className="flex items-start gap-4 mb-4 pb-4 border-b">
+          <Avatar className="h-14 w-14 ring-2 ring-primary/20">
             <AvatarImage src={patient.photo_url || undefined} />
             <AvatarFallback className="bg-gradient-primary text-primary-foreground text-lg font-semibold">
               {getInitials(patient.name)}

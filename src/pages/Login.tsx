@@ -136,15 +136,24 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      <div className="bg-gradient-primary text-primary-foreground flex flex-col justify-between p-8 lg:p-14">
+        <span className="font-display text-2xl font-extrabold">START<span className="text-accent">.</span></span>
+        <div className="py-10 lg:py-0">
+          <h1 className="text-3xl lg:text-5xl font-bold leading-tight">Fisioterapia Ortopédica e Esportiva</h1>
+          <p className="mt-4 text-primary-foreground/80 max-w-md">Gestão de pacientes, sessões e avaliações em um só lugar.</p>
+        </div>
+        <p className="hidden lg:block text-sm text-primary-foreground/70">© START Fisioterapia</p>
+      </div>
+      <div className="flex items-center justify-center p-6">
+      <Card className="w-full max-w-md border-0 shadow-elevated">
         <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2">
-            <Lock className="w-6 h-6 text-primary" />
+          <div className="mx-auto w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-2">
+            <Lock className="w-6 h-6 text-accent" />
           </div>
-          <CardTitle className="text-2xl">START Fisioterapia</CardTitle>
+          <CardTitle className="text-2xl">Acessar sistema</CardTitle>
           <CardDescription>
-            Sistema protegido - Acesso apenas para profissionais autorizados
+            Acesso apenas para profissionais autorizados
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -181,6 +190,7 @@ const Login = () => {
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

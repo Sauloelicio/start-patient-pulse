@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,11 +9,11 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 145 100% 15%;
+    --background: 0 0% 96%;
+    --foreground: 150 30% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 145 100% 15%;
+    --card-foreground: 150 30% 12%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 145 100% 15%;
@@ -36,13 +37,13 @@ All colors MUST be HSL.
     --input: 0 0% 91%;
     --ring: 145 100% 27%;
 
-    --radius: 1rem;
+    --radius: 0.875rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(145 100% 27%), hsl(145 65% 45%));
     --gradient-accent: linear-gradient(135deg, hsl(145 65% 45%), hsl(20 100% 50%));
-    --gradient-hero: linear-gradient(180deg, hsl(145 100% 27% / 0.05), hsl(0 0% 100%));
+    --gradient-hero: linear-gradient(180deg, hsl(145 60% 96%), hsl(0 0% 96%) 320px);
 
-    --shadow-card: 0 4px 20px hsl(145 100% 27% / 0.08);
+    --shadow-card: 0 1px 2px hsl(150 30% 12% / 0.04), 0 6px 24px -8px hsl(145 100% 27% / 0.12);
     --shadow-elevated: 0 10px 40px hsl(145 100% 27% / 0.12);
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -85,6 +86,9 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
   }
 }
